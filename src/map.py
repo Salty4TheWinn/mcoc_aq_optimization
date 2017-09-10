@@ -54,6 +54,7 @@ class Map(object):
                 if (current.boostedBy > 0):
                     print('Cannot Attack a bossted node %d' %(player.location))
                 else:
+                    current.fight(player)
                     mostImportant = -10000000
                     mostImportantIndex  = -1
                     for move in current.futureNodes:
@@ -145,3 +146,26 @@ class Map(object):
         self.nodeList.append(node.Node(37, 'Cosmic', [32], [34]))
 
         self.openNodes = len(self.nodeList)
+    def optimizeChamps(self):
+        for player in self.players:
+            tech = 0
+            cosmic = 0
+            mystic = 0
+            science = 0
+            skill = 0
+            mutant = 0
+            for nodeId in player.path:
+                current = list(filter(lambda fn: fn.number == nodeId, self.nodeList))[0]
+                if (current.combatClass == 'Mutant'):
+                    tech += 1
+                elif (current.combatClass == 'Tech'):
+                    cosmic += 1
+                elif (current.combatClass == 'Cosmic'):
+                    mystic += 1
+                elif (current.combatClass == 'Mystic'):
+                    science += 1
+                elif (current.combatClass == 'Science'):
+                    skill += 1
+                elif (current.combatClass == 'Skill'):
+                    mutant += 1
+            print('Player %d needs Tech %d Cosmic %d Mystic %d Science %d Skill %d Mutant %d' % (player.number, tech, cosmic, mystic, science, skill, mutant))

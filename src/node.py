@@ -1,3 +1,4 @@
+import player
 
 class Node(object):
     def __init__(self, number, combatClass, futureNodes,  linkedTo = [],  boostedBy = 0):
@@ -56,3 +57,25 @@ class Node(object):
                 self.importance = self.importance +100
 
     ##        print('Node %d Path Counter %d Importance %d' % (self.number, self.pathCounter, self.importance))
+    def actualFight(self, weakClass, strongClass, player):
+        if (strongClass in player.champs):
+            player.win = player.win + 1
+        elif (weakClass not in player.champs):
+            player.lose = player.lose + 1
+        else:
+            player.draw = player.draw + 1
+    def fight(self, player):
+        if (self.combatClass == 'Empty' or self.combatClass == 'Root'):
+            return
+        elif (self.combatClass == 'Cosmic'):
+            self.actualFight('Tech', 'Mystic', player)
+        elif (self.combatClass == 'Tech'):
+            self.actualFight('Mutant', 'Cosmic', player)
+        elif (self.combatClass == 'Mutant'):
+            self.actualFight('Skill', 'Tech', player)
+        elif (self.combatClass == 'Skill'):
+            self.actualFight('Science', 'Mutant', player)
+        elif (self.combatClass == 'Science'):
+            self.actualFight('Mystic', 'Skill', player)
+        elif (self.combatClass == 'Mystic'):
+            self.actualFight('Cosmic', 'Science', player)

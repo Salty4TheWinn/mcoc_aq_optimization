@@ -5,6 +5,9 @@ class Player(object):
         self.champs = [champ1, champ2, champ3]
         self.energy = 3
         self.path = [0]
+        self.win = 0
+        self.lose = 0
+        self.draw = 0
 
     def __str__(self):
         return 'Player %d at Node %d with champs %s Energy: %d\n Path: %s\n' % (self.number, self.location, self.champs, self.energy, self.path)
