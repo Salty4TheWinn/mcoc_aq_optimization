@@ -1,0 +1,72 @@
+[{
+    "number": 0,
+    "combatClass": "Root",
+    "hit": 10,
+    "futureNodes": [1],
+    "linkedTo": [],
+    "boostedBy": 0,
+    "importance": 0,
+    "difficulty": 0,
+    "pathCounter": 0,
+    "branches": 0,
+    "linkedCounter": 0,
+    "inputs": 0
+  },
+  {
+    "number": 1,
+    "combatClass": "Mystic",
+    "hit": 0,
+    "futureNodes": [2, 3],
+    "linkedTo": [2, 3],
+    "boostedBy": 0,
+    "importance": 0,
+    "difficulty": 0,
+    "pathCounter": 0,
+    "branches": 0,
+    "linkedCounter": 0,
+    "inputs": 1
+  },
+  {
+    "number": 2,
+    "combatClass": "Mystic",
+    "hit": 0,
+    "futureNodes": [4],
+    "linkedTo": [],
+    "boostedBy": 1,
+    "importance": 0,
+    "difficulty": 0,
+    "pathCounter": 0,
+    "branches": 0,
+    "linkedCounter": 0,
+    "inputs": 1
+  },
+  {
+    "number": 3,
+    "combatClass": "Mystic",
+    "hit": 0,
+    "futureNodes": [4],
+    "linkedTo": [],
+    "boostedBy": 1,
+    "importance": 0,
+    "difficulty": 0,
+    "pathCounter": 0,
+    "branches": 0,
+    "linkedCounter": 0,
+    "inputs": 1
+  },
+  {
+    "number": 4,
+    "combatClass": "Boss",
+    "hit": 0,
+    "futureNodes": [],
+    "linkedTo": [],
+    "boostedBy": 0,
+    "importance": 0,
+    "difficulty": 0,
+    "pathCounter": 0,
+    "branches": 0,
+    "linkedCounter": 0,
+    "inputs": 2
+  }
+
+]

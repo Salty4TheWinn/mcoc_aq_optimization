@@ -13,6 +13,7 @@ class Map(object):
         self.openNodes = 0
         self.movements = 0
         self.energyUsed = 0
+        self.bossNode = 0
 
 
     def __str__(self):
@@ -38,7 +39,7 @@ class Map(object):
 
     def energyAvalible(self):
         for player in self.players:
-            if (player.energy > 0 and player.location != 34):
+            if (player.energy > 0 and player.location != self.bossNode):
                 current = list(filter(lambda fn: fn.number == player.location, self.nodeList))[0]
                 if (current.boostedBy == 0):
                     return True
@@ -52,7 +53,7 @@ class Map(object):
 
     def walk(self):
         for player in self.players:
-            if(player.energy > 0 and player.location != 34):
+            if(player.energy > 0 and player.location != self.bossNode):
                 current = list(filter(lambda fn: fn.number == player.location, self.nodeList))[0]
 
                 if (current.boostedBy > 0):
@@ -92,12 +93,18 @@ class Map(object):
 
 
 
-    def create(self):
-        with open('data.json') as data_file:
+    def create(self, file):
+        remove = 0
+        with open(file) as data_file:
             data = json.load(data_file)
             for datum in data:
-                self.nodeList.append(node.Node(datum['number'], datum['combatClass'], datum['futureNodes'], datum['linkedTo'], datum['boostedBy']))
-        self.openNodes = len(self.nodeList)
+                self.nodeList.append(node.Node(datum['number'], datum['combatClass'], datum['futureNodes'], datum['linkedTo'], datum['boostedBy'], datum['inputs']))
+                if (datum['combatClass'] == 'Boss'):
+                    self.bossNode = datum['number']
+                    remove += 1
+                elif (datum['combatClass'] == 'Root'):
+                    remove += 1
+        self.openNodes = len(self.nodeList) - 1 # remove root and boss
 
 
 

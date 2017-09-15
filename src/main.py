@@ -16,23 +16,23 @@ players.append(player.Player(9, 'Cosmic', 'Tech', 'Mystic'))
 players.append(player.Player(10, 'Cosmic', 'Tech', 'Mystic'))
 
 m = map.Map(players)
-m.create()
+m.create('data.json')
 m.score()
-# print (m)
+print (m)
 
 
 while (m.energyAvalible() == True):
     while (m.energyAvalible() == True):
         m.walk()
-    # print(m)
+    print(m)
     m.thirtyMinutes()
-
+print(m)
 print (m.movements)
 print('Energy Used %d' % (m.energyUsed))
 for player in players:
     print('%s' % (player))
 for i in m.nodeList:
     if (i.hit == 0):
-        print ('Failure')
+        print ('Failure: %d' % i.number)
 print('Success')
 m.optimizeChamps()
