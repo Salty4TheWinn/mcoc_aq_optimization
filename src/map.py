@@ -14,15 +14,24 @@ class Map(object):
         self.movements = 0
         self.energyUsed = 0
         self.bossNode = 0
+        self.nextPath = 1
+        self.pathList  = []
+        self.stuckPlayers = []
+        self.pathChoice = [0, 1, 2, 3, 4, 5, 6, 7, 0, 1]
+        # self.pathChoice = [1, 0, 5, 7, 3, 2, 4, 6, 0, 6]
+        # self.pathChoice = [5, 4, 3, 2, 1, 6, 7, 0, 4, 4]
+        self.done = False
 
 
     def __str__(self):
         temp = 'Map 5 Time %d \n' % (self.clock)
         nodeIter = iter(self.nodeList)
-        for i in nodeIter:
-            temp += i.__str__()
+        # for i in nodeIter:
+        #     temp += i.__str__()
         for j in self.players:
             temp += j.__str__()
+        # for k in self.pathList:
+        #     temp += 'Paths: %s\n' % (k)
         return temp
 
     def printPlayers(self):
@@ -39,7 +48,7 @@ class Map(object):
 
     def energyAvalible(self):
         for player in self.players:
-            if (player.energy > 0 and player.location != self.bossNode):
+            if (player.energy > 0 and player.location < len(player.pathList)-1 and player.stuck == False):
                 current = list(filter(lambda fn: fn.number == player.location, self.nodeList))[0]
                 if (current.boostedBy == 0):
                     return True
@@ -51,45 +60,114 @@ class Map(object):
             if (player.energy < 5):
                 player.energy = player.energy + 1
 
+
+    def setPaths(self):
+        for player in self.players:
+            if (player.pathList == None):
+                player.pathList = self.pathList[self.pathChoice[self.nextPath-1]]
+                self.nextPath += 1
+                if (self.nextPath > len(self.pathChoice)):
+                    self.nextPath = 1
+
+    def checkDone(self):
+        self.done = True
+        for player in self.players:
+            if (player.pathList[player.location] != self.bossNode):
+                self.done = False
+
+
     def walk(self):
         for player in self.players:
-            if(player.energy > 0 and player.location != self.bossNode):
-                current = list(filter(lambda fn: fn.number == player.location, self.nodeList))[0]
-
+            while(player.energy > 0 and player.location < len(player.pathList)-1 and player.stuck != True):
+                current = list(filter(lambda fn: fn.number == player.pathList[player.location], self.nodeList))[0]
                 if (current.boostedBy > 0):
-                    print('Cannot Attack a bossted node %d' %(player.location))
+                    # print('Cannot Attack a boosted node %s' %(current))
+                    player.stuck = True
+                    self.stuckPlayers.append(player)
                 else:
-                    current.fight(player)
-                    mostImportant = -10000000
-                    mostImportantIndex  = -1
-                    for move in current.futureNodes:
-                        moveNode = list(filter(lambda fn: fn.number == move, self.nodeList))[0]
+                    # print('Player %d Moving to Node %d\n' % (player.number, player.pathList[player.location+1]))
+                    player.location += 1
+                    moveNode = list(filter(lambda fn: fn.number == player.pathList[player.location], self.nodeList))[0]
+                    if (moveNode.hit == 0):
+                        player.energy = player.energy - 1
+                        self.energyUsed = self.energyUsed + 1
+                        self.openNodes = self.openNodes - 1
+                        player.actualFights.append(moveNode.number)
+                        # print(moveNode.linkedTo)
+                        for bnId in moveNode.linkedTo:
+                            bn = list(filter(lambda fn: fn.number == bnId, self.nodeList))[0]
+                            bn.boostedBy = bn.boostedBy - 1
+                            temp = []
+                            for stuckPlayer in self.stuckPlayers:
+                                if (stuckPlayer.pathList[stuckPlayer.location] == bnId):
+                                    # print('Found Stuck Player %d at %d' % (stuckPlayer.number, stuckPlayer.pathList[stuckPlayer.location]))
+                                    stuckPlayer.stuck = False
+                                else:
+                                    temp.append(stuckPlayer)
+                            self.stuckPlayers = temp
+                            # print('Removing Boost on %d boost now set to %d\n' % (bnId, bn.boostedBy))
+                        moveNode.linkedTo = []
+                    self.movements = self.movements + 1
+                    moveNode.hit = moveNode.hit + 1
+        self.checkDone()
 
-                        if (moveNode.importance > mostImportant):
-                            mostImportant = moveNode.importance
-                            mostImportantIndex = move
-                    if (mostImportant == -10000000):
-                            print ('No node selected')
-                    else:
-                        player.location = mostImportantIndex
-                        moveNode = list(filter(lambda fn: fn.number == mostImportantIndex, self.nodeList))[0]
 
-                        if (moveNode.hit == 0):
-                            player.energy = player.energy - 1
-                            self.energyUsed = self.energyUsed + 1
-                            self.openNodes = self.openNodes - 1
-                            # print(moveNode.linkedTo)
-                            for bnId in moveNode.linkedTo:
-                                bn = list(filter(lambda fn: fn.number == bnId, self.nodeList))[0]
-                                bn.boostedBy = bn.boostedBy - 1
-                                # print('Removing Boost on %d boost now set to %d\n' % (bnId, bn.boostedBy))
-                            moveNode.linkedTo = []
-                        self.movements = self.movements + 1
-                        moveNode.hit = moveNode.hit + 1
-                        self.score()
-                        player.path.append(mostImportantIndex)
-    ##                    print(self)
-                        # print(self.printPlayers())
+    # def walk(self):
+    #     for player in self.players:
+    #         while(player.energy > 0 and player.location != self.bossNode):
+    #             current = list(filter(lambda fn: fn.number == player.location, self.nodeList))[0]
+    #
+    #             if (current.boostedBy > 0):
+    #                 print('Cannot Attack a bossted node %d' %(player.location))
+    #             elif (len(current.futureNodes) == 1):
+    #                 mostImportantIndex = current.futureNodes[0]
+    #                 player.location = mostImportantIndex
+    #                 moveNode = list(filter(lambda fn: fn.number == mostImportantIndex, self.nodeList))[0]
+    #
+    #                 if (moveNode.hit == 0):
+    #                     player.energy = player.energy - 1
+    #                     self.energyUsed = self.energyUsed + 1
+    #                     self.openNodes = self.openNodes - 1
+    #                     # print(moveNode.linkedTo)
+    #                     for bnId in moveNode.linkedTo:
+    #                         bn = list(filter(lambda fn: fn.number == bnId, self.nodeList))[0]
+    #                         bn.boostedBy = bn.boostedBy - 1
+    #                         # print('Removing Boost on %d boost now set to %d\n' % (bnId, bn.boostedBy))
+    #                     moveNode.linkedTo = []
+    #                 self.movements = self.movements + 1
+    #                 moveNode.hit = moveNode.hit + 1
+    #                 self.score()
+    #                 player.path.append(mostImportantIndex)
+    #             else:
+    #                 current.fight(player)
+    #                 mostImportant = -10000000
+    #                 mostImportantIndex  = -1
+    #                 for move in current.futureNodes:
+    #                     moveNode = list(filter(lambda fn: fn.number == move, self.nodeList))[0]
+    #
+    #                     if (moveNode.importance > mostImportant):
+    #                         mostImportant = moveNode.importance
+    #                         mostImportantIndex = move
+    #                 if (mostImportantIndex >= 0):
+    #                     player.location = mostImportantIndex
+    #                     moveNode = list(filter(lambda fn: fn.number == mostImportantIndex, self.nodeList))[0]
+    #
+    #                     if (moveNode.hit == 0):
+    #                         player.energy = player.energy - 1
+    #                         self.energyUsed = self.energyUsed + 1
+    #                         self.openNodes = self.openNodes - 1
+    #                         # print(moveNode.linkedTo)
+    #                         for bnId in moveNode.linkedTo:
+    #                             bn = list(filter(lambda fn: fn.number == bnId, self.nodeList))[0]
+    #                             bn.boostedBy = bn.boostedBy - 1
+    #                             # print('Removing Boost on %d boost now set to %d\n' % (bnId, bn.boostedBy))
+    #                         moveNode.linkedTo = []
+    #                     self.movements = self.movements + 1
+    #                     moveNode.hit = moveNode.hit + 1
+    #                     self.score()
+    #                     player.path.append(mostImportantIndex)
+    # ##                    print(self)
+    #                     # print(self.printPlayers())
 
 
 
@@ -107,6 +185,11 @@ class Map(object):
         self.openNodes = len(self.nodeList) - 1 # remove root and boss
 
 
+    def loadPaths(self, file):
+        with open(file) as data_file:
+            data = json.load(data_file)
+            for datum in data:
+                self.pathList.append(datum['nodes'])
 
 
     def optimizeChamps(self):
@@ -117,7 +200,7 @@ class Map(object):
             science = 0
             skill = 0
             mutant = 0
-            for nodeId in player.path:
+            for nodeId in player.actualFights:
                 current = list(filter(lambda fn: fn.number == nodeId, self.nodeList))[0]
                 if (current.combatClass == 'Mutant'):
                     tech += 1
@@ -193,5 +276,10 @@ class Map(object):
             if (mutant > third and firstName != 'Mutant' and secondName != 'Mutant'):
                 thirdName = 'Mutant'
                 third = mutant
+
+            if (second < 1):
+                secondName = 'Anything'
+            if (third < 1):
+                thirdName = 'Anything'
 
             print('Player %d needs %s, %s, %s' % (player.number, firstName, secondName, thirdName))

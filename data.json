@@ -10,7 +10,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 0
   }, {
     "number": 100,
     "combatClass": "Empty",
@@ -179,7 +179,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 2
   }, {
     "number": 9,
     "combatClass": "Cosmic",
@@ -491,7 +491,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 2
   }, {
     "number": 109,
     "combatClass": "Empty",
@@ -504,7 +504,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 2
   }, {
     "number": 30,
     "combatClass": "Mutant",
@@ -543,7 +543,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 2
   }, {
     "number": 106,
     "combatClass": "Empty",
@@ -556,7 +556,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 2
   }, {
     "number": 107,
     "combatClass": "Empty",
@@ -569,7 +569,7 @@
     "pathCounter": 0,
     "branches": 0,
     "linkedCounter": 0,
-    "inputs": 1
+    "inputs": 3
   }, {
     "number": 33,
     "combatClass": "Cosmic",

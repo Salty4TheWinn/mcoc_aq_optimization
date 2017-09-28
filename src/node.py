@@ -19,67 +19,81 @@ class Node(object):
         self.totalFuturePaths = []
 
     def __str__(self):
-        return 'Node %d  \tImportance %d\tBranches %d\tPlayers %s \n' % (self.number, self.importance, self.branches, self.hit)
+        return 'Node %d  \tPath Length %d\tImportance %d\tBranches %d\tPlayers %s \n' % (self.number, self.pathCounter, self.importance, self.branches, self.hit)
 
     def resetImportance(self):
         self.importance = 0
         self.pathCounter = 0
 
+
+    alreadyCounted = []
+
+    def calculatePathLength(self, map):
+        global alreadyCounted
+        self.pathCounter = 1
+        if (len(self.futureNodes) > 0):
+            self.branches = len(self.futureNodes)-1
+        else:
+            self.branches = 0
+        for fnId in self.futureNodes:
+            if (fnId in alreadyCounted):
+                # print('Already found %d' % fnId)
+                # self.branches -= 1
+                a = 1
+            else:
+                fn = list(filter(lambda fn: fn.number == fnId, map.nodeList))[0]
+                if (fn == None):
+                    print('Bad Data', fnId)
+                else:
+                    alreadyCounted.append(fnId)
+                    fn.calculatePathLength(map)
+                    self.pathCounter += fn.pathCounter
+                    self.branches += fn.branches
+                    # print('Added %d to list %d' % (fnId, self.pathCounter))
+
+
     def calculateImportance(self, map):
+        global alreadyCounted
         #importance = path length + linked nodes + hits/branches
         if (self.importance != 0):
             return
         elif( self.combatClass == 'GGobaBoss'):
             self.importance = 100
         else:
-
-            if (self.hit == 0):
-                self.pathCounter = 1/self.inputs
-            else:
-                self.pathCounter = 0
-
-            self.branches = len(self.futureNodes)
-            self.branches = self.branches - self.inputs + 1
-            print('branches %d %d' % (self.number, self.branches))
-            # if (self.branches == 0):
-            #     self.branches = 1
+            self.branches = 0
+            alreadyCounted = []
+            # print('Calculating Path Length of %d' % self.number)
+            self.calculatePathLength( map)
+            # print(alreadyCounted);
+            self.pathCounter = len(alreadyCounted)
+            # print(self.pathCounter)
 
 
+            self.importance = 20.0 * self.pathCounter / len(map.nodeList)
+            # temp = 10.0 * self.pathCounter / len(map.nodeList)
+
+
+            if (len(self.linkedTo) > 0):
+                self.importance += 10
+            if (self.hit < self.branches):
+                self.importance = self.importance + (10.0*(self.branches - self.hit+1))
+            if (self.boostedBy > 0):
+                self.importance -= 10
+
+            # self.importance += self.branches * 10
 
             for fnId in self.futureNodes:
                 fn = list(filter(lambda fn: fn.number == fnId, map.nodeList))[0]
                 if (fn == None):
-                    print('WTF: ', fnId)
+                    print('Bad Data Check your map file: ', fnId)
                 else:
                     fn.calculateImportance(map)
-                    self.pathCounter = self.pathCounter + (fn.pathCounter)
-                    if (fn.branches > 1):
-                        self.branches = self.branches + ( (fn.branches-1))
-                    if (fn.inputs > 1):
-                        self.branches -= fn.inputs - 1
-                    self.linkedCounter = len(self.linkedTo) + (fn.linkedCounter)
-            #path length
-            print('Inital %d: %d' % (self.pathCounter, map.openNodes))
-            if (self.pathCounter > 0):
-                self.importance = (self.pathCounter / map.openNodes) * 33.0
-            #branches
-            # self.importance = self.importance + 25 - ((self.hit/self.branches)*25)
-            #linked nodes
-            print('Path Counter %d: %d %d %d' % (self.number, self.importance, self.pathCounter, map.openNodes))
-            # self.importance = self.importance + (self.linkedCounter * 25/5)
-            # print('Linked Counter %d: %d' % (self.number, self.importance))
-            if (self.hit < self.branches):
-                self.importance = self.importance + 33 - ((self.hit/self.branches)*33)
-            print('Hit vs Brances %d: %d' % (self.number, self.importance))
-            if (self.boostedBy > 0):
-                self.importance = self.importance -33
-            print('Boosted %d: %d' % (self.number, self.importance))
-            if (len(self.linkedTo) > 0):
-                self.importance = self.importance +33
-            print('Linked %d: %d' % (self.number, self.importance))
-            if( self.combatClass == 'Root' ):
-                self.importance = 0
-            print('Node %d Path Counter %d Importance %d Branches %d' % (self.number, self.pathCounter, self.importance, self.branches))
+                    # self.importance += (fn.importance * 0.5)
+            # print("Path Link is %d: %d %.2f %.2f" % (self.number, self.pathCounter, temp,  len(map.nodeList)))
+
+
+
+
     def actualFight(self, weakClass, strongClass, player):
         if (strongClass in player.champs):
             player.win = player.win + 1
